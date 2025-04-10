@@ -18,12 +18,14 @@ import { getTheme } from "../../integrations/theme/getTheme"
 import WorkspaceTracker from "../../integrations/workspace/WorkspaceTracker"
 import { ClineAccountService } from "../../services/account/ClineAccountService"
 import { McpHub } from "../../services/mcp/McpHub"
+import { InterceptionService } from "../../services/interception"
+import { DeepgramService } from "../../services/deepgram" // Added DeepgramService import
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { ApiProvider, ModelInfo } from "../../shared/api"
 import { findLast } from "../../shared/array"
 import { ChatContent } from "../../shared/ChatContent"
 import { ChatSettings } from "../../shared/ChatSettings"
-import { ExtensionMessage, ExtensionState, Invoke, Platform } from "../../shared/ExtensionMessage"
+import { ClineSay, ExtensionMessage, ExtensionState, Invoke, Platform } from "../../shared/ExtensionMessage" // Added ClineSay
 import { HistoryItem } from "../../shared/HistoryItem"
 import { McpDownloadResponse, McpMarketplaceCatalog, McpServer } from "../../shared/mcp"
 import { TelemetrySetting } from "../../shared/TelemetrySetting"
@@ -49,6 +51,8 @@ import { discoverChromeInstances } from "../../services/browser/BrowserDiscovery
 import { searchWorkspaceFiles } from "../../services/search/file-search"
 import { getWorkspacePath } from "../../utils/path"
 
+const DEEPGRAM_API_KEY_SECRET_ID = "deepgramApiKey"; // Define constant for secret key
+
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
 
@@ -61,6 +65,9 @@ export class Controller {
 	workspaceTracker?: WorkspaceTracker
 	mcpHub?: McpHub
 	accountService?: ClineAccountService
+	private interceptionService: InterceptionService
+	private deepgramService: DeepgramService // Added DeepgramService instance property
+	private interceptedMessages: { type: ClineSay; text?: string; images?: string[] }[] = []; // Store intercepted messages
 	private latestAnnouncementId = "april-7-2025" // update to some unique identifier when we add a new announcement
 	private webviewProviderRef: WeakRef<WebviewProvider>
 
@@ -75,6 +82,20 @@ export class Controller {
 		this.workspaceTracker = new WorkspaceTracker(this)
 		this.mcpHub = new McpHub(this)
 		this.accountService = new ClineAccountService(this)
+		// Instantiate the services
+		this.interceptionService = new InterceptionService(this.processInterceptedMessage.bind(this))
+		// Instantiate DeepgramService (key retrieval happens async)
+		this.deepgramService = new DeepgramService()
+		this.initializeDeepgramService(); // Call async initialization
+
+		// Listen for configuration changes to update Deepgram API key
+		this.disposables.push(
+			vscode.workspace.onDidChangeConfiguration(async (e) => {
+				if (e.affectsConfiguration("cline.deepgram.apiKey")) {
+					await this.handleDeepgramApiKeyChange();
+				}
+			})
+		);
 
 		// Clean up legacy checkpoints
 		cleanupLegacyCheckpoints(this.context.globalStorageUri.fsPath, this.outputChannel).catch((error) => {
@@ -105,6 +126,143 @@ export class Controller {
 		this.outputChannel.appendLine("Disposed all disposables")
 
 		console.error("Controller disposed")
+	}
+
+	/**
+	 * Asynchronously initializes the Deepgram service by retrieving the API key.
+	 */
+	private async initializeDeepgramService(): Promise<void> {
+		try {
+			const apiKey = await getSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID);
+			if (apiKey) {
+				this.deepgramService.initialize(apiKey);
+			} else {
+				console.warn("[Controller] Deepgram API key not found in secrets.");
+			}
+		} catch (error) {
+			console.error("[Controller] Error initializing DeepgramService:", error);
+		}
+	}
+
+	/**
+	 * Handles changes to the Deepgram API key configuration setting.
+	 */
+	private async handleDeepgramApiKeyChange(): Promise<void> {
+		const config = vscode.workspace.getConfiguration("cline.deepgram");
+		const newApiKey = config.get<string>("apiKey");
+
+		try {
+			if (newApiKey) {
+				await storeSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID, newApiKey);
+				this.deepgramService.initialize(newApiKey);
+				console.log("[Controller] Deepgram API key updated and service re-initialized.");
+				// Optionally notify the user
+				// vscode.window.showInformationMessage("Deepgram API key updated.");
+			} else {
+				// Key was cleared in settings
+				await storeSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID, undefined);
+				this.deepgramService.initialize(""); // Re-initialize with empty key to disable
+				console.log("[Controller] Deepgram API key cleared.");
+			}
+		} catch (error) {
+			console.error("[Controller] Error updating Deepgram API key:", error);
+			vscode.window.showErrorMessage("Failed to update Deepgram API key.");
+		}
+	}
+
+
+	/**
+	 * Processes messages intercepted by the InterceptionService.
+	 * This method contains the logic for handling intercepted messages.
+	 * @param type The type of the intercepted message.
+	 * @param text The text content of the message.
+	 * @param images Optional array of image data URIs.
+	 * @param partial Boolean indicating if the message is partial.
+	 * @returns A promise resolving to boolean (allow/suppress) or an object to modify the message.
+	 */
+	private async processInterceptedMessage(
+		type: ClineSay,
+		text?: string,
+		images?: string[],
+		partial?: boolean,
+	): Promise<boolean | { text?: string; images?: string[] }> {
+		// TODO: Implement actual processing logic here based on requirements.
+		// This could involve:
+		// - Extracting text content for external use.
+		// - Modifying message content based on rules.
+		// - Suppressing certain message types.
+		// - Logging message details.
+		// - Triggering TTS based on criteria.
+
+		console.log('[Controller] Processing intercepted message:', { type, text, partial, imageCount: images?.length });
+
+		// Store non-partial message content for retrieval
+		if (!partial && text) {
+			// Store relevant details - adjust based on what needs to be retrieved
+			this.interceptedMessages.push({ type, text, images });
+			// Optional: Limit the size of the stored messages if needed
+			// const MAX_INTERCEPTED = 100;
+			// if (this.interceptedMessages.length > MAX_INTERCEPTED) {
+			// 	this.interceptedMessages.shift(); // Remove the oldest message
+			// }
+		}
+
+		// --- TTS Logic ---
+		// Example criteria: Speak non-partial 'text' messages from the assistant
+		// (Note: 'say' type 'text' corresponds to assistant messages in this context)
+		if (type === 'text' && !partial && text && text.trim().length > 0) {
+			if (this.deepgramService.isReady()) {
+				console.log('[Controller] Triggering Deepgram TTS for intercepted message.');
+				// Call speak but don't await or handle the stream yet (playback TBD)
+				this.deepgramService.speak(text).then(audioBuffer => { // Correct parameter name
+					if (audioBuffer) { // Check if buffer exists
+						console.log('[Controller] Deepgram TTS audio buffer received.');
+						// Convert buffer to base64 data URI
+						// Assuming MP3 output, adjust mime type if needed (e.g., audio/wav, audio/opus)
+						const audioDataUri = `data:audio/mp3;base64,${audioBuffer.toString('base64')}`; // Use correct variable
+
+						// Send audio data to webview for playback
+						this.postMessageToWebview({
+							type: 'playAudio',
+							audioDataUri: audioDataUri,
+						});
+
+					} else {
+						console.log('[Controller] Deepgram TTS returned no audio buffer.');
+					}
+				}).catch(error => {
+					console.error('[Controller] Error calling Deepgram speak:', error);
+					// Don't show error to user if service wasn't ready anyway
+					if (this.deepgramService.isReady()) {
+						vscode.window.showErrorMessage(`Deepgram TTS Error: ${error instanceof Error ? error.message : String(error)}`);
+					}
+				});
+			} else {
+				console.warn('[Controller] Deepgram TTS skipped: Service not ready (API key likely missing).');
+				// Optionally inform the user once that the key is missing
+			}
+		}
+		// --- End TTS Logic ---
+
+		// Default: Allow the message to proceed unmodified
+		return true;
+	}
+
+	/**
+	 * Retrieves the stored intercepted messages.
+	 * NOTE: This is a basic example; a more robust solution might involve
+	 * specific filtering or formatting based on requirements.
+	 * @returns An array of intercepted message details.
+	 */
+	public getInterceptedMessages(): { type: ClineSay; text?: string; images?: string[] }[] {
+		return [...this.interceptedMessages]; // Return a copy
+	}
+
+	/**
+	 * Clears the stored intercepted messages.
+	 */
+	public clearInterceptedMessages(): void {
+		this.interceptedMessages = [];
 	}
 
 	// Auth methods
@@ -138,6 +296,8 @@ export class Controller {
 			task,
 			images,
 		)
+		// Register the interception callback
+		this.task.onBeforeSay = this.interceptionService.onBeforeSayCallback
 	}
 
 	async initClineWithHistoryItem(historyItem: HistoryItem) {
@@ -155,6 +315,8 @@ export class Controller {
 			undefined,
 			historyItem,
 		)
+		// Register the interception callback
+		this.task.onBeforeSay = this.interceptionService.onBeforeSayCallback
 	}
 
 	// Send any JSON serializable data to the react app
@@ -894,6 +1056,39 @@ export class Controller {
 		}
 	}
 
+	/**
+	 * Handles programmatic input injection.
+	 * Checks the task state and either responds to an active 'ask' or simulates a new message submission.
+	 * @param text The text content to inject.
+	 * @param images Optional array of base64 encoded image strings.
+	 */
+	async handleProgrammaticUserInput(text: string, images?: string[]) {
+		if (!this.task) {
+			// If there's no active task, start a new one
+			await this.initClineWithTask(text, images)
+			return
+		}
+
+		// Check if the task is currently waiting for an 'ask' response
+		if (this.task.isAwaitingAskResponse) {
+			// Respond to the active 'ask'
+			this.task.handleWebviewAskResponse("messageResponse", text, images)
+		} else {
+			// If the task is idle or just completed, simulate a new message submission
+			// Optional: Update the input field visually first
+			// await this.postMessageToWebview({ type: 'invoke', invoke: 'setInputText', text: text, images: images });
+			// await setTimeoutPromise(50); // Small delay to allow UI update
+
+			// Simulate sending the message
+			await this.postMessageToWebview({
+				type: "invoke",
+				invoke: "sendMessage",
+				text: text,
+				images: images,
+			})
+		}
+	}
+
 	async updateTelemetrySetting(telemetrySetting: TelemetrySetting) {
 		await updateGlobalState(this.context, "telemetrySetting", telemetrySetting)
 		const isOptedIn = telemetrySetting === "enabled"
@@ -1602,7 +1797,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	// Context menus and code actions
 
 	getFileMentionFromPath(filePath: string) {
-		const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath).at(0)
+		const cwd = vscode.workspace.workspaceFolders?.map((folder: any) => folder.uri.fsPath).at(0) // Added any type
 		if (!cwd) {
 			return "@/" + filePath
 		}

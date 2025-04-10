@@ -137,6 +137,38 @@ For example, when working with a local web server, you can use 'Restore Workspac
 
 <img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
 
+## Troubleshooting
+
+<details>
+<summary>ESLint: Failed to load plugin '@typescript-eslint' / Cannot find module 'natural-compare'</summary>
+
+If you encounter errors related to ESLint failing to load the `@typescript-eslint` plugin, specifically mentioning a missing module like `natural-compare`, it might indicate a corrupted `node_modules` directory or cache issues. Try the following steps:
+
+1.  **Clean npm cache:**
+    ```bash
+    npm cache clean --force
+    ```
+2.  **Remove node_modules and lock file:** Use a reliable tool like `rimraf` for cross-platform compatibility.
+    ```bash
+    npx rimraf node_modules
+    del package-lock.json # Windows
+    # rm package-lock.json # macOS/Linux
+    ```
+3.  **Reinstall dependencies:**
+    ```bash
+    npm install
+    ```
+4.  **Verify ESLint:** Run the lint command to check if the issue is resolved.
+    ```bash
+    npm run lint
+    # or
+    npx eslint src --ext ts && npx eslint webview-ui/src --ext ts
+    ```
+
+This process ensures a completely fresh installation of dependencies, which often resolves persistent module resolution errors.
+
+</details>
+
 ## Contributing
 
 To contribute to the project, start with our [Contributing Guide](CONTRIBUTING.md) to learn the basics. You can also join our [Discord](https://discord.gg/cline) to chat with other contributors in the `#contributors` channel. If you're looking for full-time work, check out our open positions on our [careers page](https://cline.bot/join-us)!

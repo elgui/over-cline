@@ -144,6 +144,34 @@ export const ExtensionStateContextProvider: React.FC<{
 				setTotalTasksSize(message.totalTasksSize ?? null)
 				break
 			}
+			case "playAudio": {
+				if (message.audioDataUri) {
+					try {
+						// Basic Web Audio API playback
+						const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+						const base64Data = message.audioDataUri.split(',')[1];
+						const byteCharacters = atob(base64Data);
+						const byteNumbers = new Array(byteCharacters.length);
+						for (let i = 0; i < byteCharacters.length; i++) {
+							byteNumbers[i] = byteCharacters.charCodeAt(i);
+						}
+						const byteArray = new Uint8Array(byteNumbers);
+						const arrayBuffer = byteArray.buffer;
+
+						audioContext.decodeAudioData(arrayBuffer, (buffer) => {
+							const source = audioContext.createBufferSource();
+							source.buffer = buffer;
+							source.connect(audioContext.destination);
+							source.start(0);
+						}, (err) => {
+							console.error("Error decoding audio data:", err);
+						});
+					} catch (error) {
+						console.error("Error playing audio:", error);
+					}
+				}
+				break;
+			}
 		}
 	}, [])
 

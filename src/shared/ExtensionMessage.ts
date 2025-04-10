@@ -48,6 +48,7 @@ export interface ExtensionMessage {
 		| "browserRelaunchResult"
 		| "relativePathsResponse" // Handles single and multiple path responses
 		| "fileSearchResults"
+		| "playAudio" // Added for TTS playback
 	text?: string
 	paths?: (string | null)[] // Used for relativePathsResponse
 	action?:
@@ -106,6 +107,7 @@ export interface ExtensionMessage {
 		serverName: string
 		error?: string
 	}
+	audioDataUri?: string // Added for playAudio message
 }
 
 export type Invoke = "sendMessage" | "primaryButtonClick" | "secondaryButtonClick"

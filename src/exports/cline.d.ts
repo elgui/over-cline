@@ -34,4 +34,12 @@ export interface ClineAPI {
 	 * Simulates pressing the secondary button in the chat interface.
 	 */
 	pressSecondaryButton(): Promise<void>
+
+	/**
+	 * Programmatically injects text and/or images into the user input field
+	 * and simulates sending the message.
+	 * @param text The text content to inject.
+	 * @param images Optional array of image data URIs (e.g., "data:image/webp;base64,...").
+	 */
+	injectUserInput(text: string, images?: string[]): Promise<void>
 }

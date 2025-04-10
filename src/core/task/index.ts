@@ -88,9 +88,18 @@ const cwd = vscode.workspace.workspaceFolders?.map((folder) => folder.uri.fsPath
 type ToolResponse = string | Array<Anthropic.TextBlockParam | Anthropic.ImageBlockParam>
 type UserContent = Array<Anthropic.ContentBlockParam>
 
+// Define the callback signature for message interception
+export type BeforeSayCallback = (
+	type: ClineSay,
+	text?: string,
+	images?: string[],
+	partial?: boolean,
+) => Promise<boolean | { text?: string; images?: string[] }>
+
 export class Task {
 	readonly taskId: string
 	readonly apiProvider?: string
+	public onBeforeSay?: BeforeSayCallback // Add the callback property
 	api: ApiHandler
 	private terminalManager: TerminalManager
 	private urlContentFetcher: UrlContentFetcher
@@ -120,6 +129,7 @@ export class Task {
 	conversationHistoryDeletedRange?: [number, number]
 	isInitialized = false
 	isAwaitingPlanResponse = false
+	isAwaitingAskResponse = false // Added flag
 	didRespondToPlanAskBySwitchingMode = false
 
 	// Metadata tracking
@@ -686,7 +696,13 @@ export class Task {
 			await this.controllerRef.deref()?.postStateToWebview()
 		}
 
-		await pWaitFor(() => this.askResponse !== undefined || this.lastMessageTs !== askTs, { interval: 100 })
+		this.isAwaitingAskResponse = true // Set flag before waiting
+		try {
+			await pWaitFor(() => this.askResponse !== undefined || this.lastMessageTs !== askTs, { interval: 100 })
+		} finally {
+			this.isAwaitingAskResponse = false // Ensure flag is reset even if wait fails or is interrupted
+		}
+
 		if (this.lastMessageTs !== askTs) {
 			throw new Error("Current ask promise was ignored") // could happen if we send multiple asks in a row i.e. with command_output. It's important that when we know an ask could fail, it is handled gracefully
 		}
@@ -702,6 +718,7 @@ export class Task {
 	}
 
 	async handleWebviewAskResponse(askResponse: ClineAskResponse, text?: string, images?: string[]) {
+		this.isAwaitingAskResponse = false // Reset flag when response comes from webview
 		this.askResponse = askResponse
 		this.askResponseText = text
 		this.askResponseImages = images
@@ -711,6 +728,40 @@ export class Task {
 		if (this.abort) {
 			throw new Error("Cline instance aborted")
 		}
+
+		// --- Interception Hook ---
+		if (this.onBeforeSay) {
+			try {
+				const callbackResult = await this.onBeforeSay(type, text, images, partial)
+				if (callbackResult === false) {
+					// Callback wants to prevent the message from being sent
+					console.log(`[Task ${this.taskId}] Message of type '${type}' suppressed by onBeforeSay hook.`)
+					// If it was a partial message that's now being suppressed, we might need to clean up the UI state
+					if (partial === false) {
+						const lastMessage = this.clineMessages.at(-1)
+						const isCompletingPreviousPartial =
+							lastMessage && lastMessage.partial && lastMessage.type === "say" && lastMessage.say === type
+						if (isCompletingPreviousPartial) {
+							// Remove the partial message from history and update UI
+							this.clineMessages.pop()
+							await this.saveClineMessagesAndUpdateHistory()
+							await this.controllerRef.deref()?.postStateToWebview()
+						}
+					}
+					return // Stop processing this message
+				} else if (typeof callbackResult === "object") {
+					// Callback wants to modify the message content
+					console.log(`[Task ${this.taskId}] Message of type '${type}' modified by onBeforeSay hook.`)
+					text = callbackResult.text !== undefined ? callbackResult.text : text
+					images = callbackResult.images !== undefined ? callbackResult.images : images
+				}
+				// If callbackResult is true or undefined, proceed as normal
+			} catch (error) {
+				console.error(`[Task ${this.taskId}] Error in onBeforeSay callback for message type '${type}':`, error)
+				// Decide whether to proceed or stop on callback error. Let's proceed for now.
+			}
+		}
+		// --- End Interception Hook ---
 
 		if (partial !== undefined) {
 			const lastMessage = this.clineMessages.at(-1)

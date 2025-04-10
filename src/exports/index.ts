@@ -60,6 +60,14 @@ export function createClineAPI(outputChannel: vscode.OutputChannel, sidebarContr
 				invoke: "secondaryButtonClick",
 			})
 		},
+
+		injectUserInput: async (text: string, images?: string[]) => {
+			outputChannel.appendLine(
+				`Injecting user input: ${text ? `"${text}"` : "undefined"} with ${images?.length || 0} image(s)`,
+			)
+			// Call the controller method to handle the injection
+			await sidebarController.handleProgrammaticUserInput(text, images)
+		},
 	}
 
 	return api

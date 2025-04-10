@@ -19,6 +19,7 @@ export type SecretKey =
 	| "asksageApiKey"
 	| "xaiApiKey"
 	| "sambanovaApiKey"
+	| "deepgramApiKey" // Added Deepgram API key
 export type GlobalStateKey =
 	| "apiProvider"
 	| "apiModelId"
