@@ -51,7 +51,7 @@ import { discoverChromeInstances } from "../../services/browser/BrowserDiscovery
 import { searchWorkspaceFiles } from "../../services/search/file-search"
 import { getWorkspacePath } from "../../utils/path"
 
-const DEEPGRAM_API_KEY_SECRET_ID = "deepgramApiKey"; // Define constant for secret key
+const DEEPGRAM_API_KEY_SECRET_ID = "deepgramApiKey" // Define constant for secret key
 
 /*
 https://github.com/microsoft/vscode-webview-ui-toolkit-samples/blob/main/default/weather-webview/src/providers/WeatherViewProvider.ts
@@ -67,7 +67,7 @@ export class Controller {
 	accountService?: ClineAccountService
 	private interceptionService: InterceptionService
 	private deepgramService: DeepgramService // Added DeepgramService instance property
-	private interceptedMessages: { type: ClineSay; text?: string; images?: string[] }[] = []; // Store intercepted messages
+	private interceptedMessages: { type: ClineSay; text?: string; images?: string[] }[] = [] // Store intercepted messages
 	private latestAnnouncementId = "april-7-2025" // update to some unique identifier when we add a new announcement
 	private webviewProviderRef: WeakRef<WebviewProvider>
 
@@ -86,16 +86,16 @@ export class Controller {
 		this.interceptionService = new InterceptionService(this.processInterceptedMessage.bind(this))
 		// Instantiate DeepgramService (key retrieval happens async)
 		this.deepgramService = new DeepgramService()
-		this.initializeDeepgramService(); // Call async initialization
+		this.initializeDeepgramService() // Call async initialization
 
 		// Listen for configuration changes to update Deepgram API key
 		this.disposables.push(
 			vscode.workspace.onDidChangeConfiguration(async (e) => {
 				if (e.affectsConfiguration("cline.deepgram.apiKey")) {
-					await this.handleDeepgramApiKeyChange();
+					await this.handleDeepgramApiKeyChange()
 				}
-			})
-		);
+			}),
+		)
 
 		// Clean up legacy checkpoints
 		cleanupLegacyCheckpoints(this.context.globalStorageUri.fsPath, this.outputChannel).catch((error) => {
@@ -133,14 +133,14 @@ export class Controller {
 	 */
 	private async initializeDeepgramService(): Promise<void> {
 		try {
-			const apiKey = await getSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID);
+			const apiKey = await getSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID)
 			if (apiKey) {
-				this.deepgramService.initialize(apiKey);
+				this.deepgramService.initialize(apiKey)
 			} else {
-				console.warn("[Controller] Deepgram API key not found in secrets.");
+				console.warn("[Controller] Deepgram API key not found in secrets.")
 			}
 		} catch (error) {
-			console.error("[Controller] Error initializing DeepgramService:", error);
+			console.error("[Controller] Error initializing DeepgramService:", error)
 		}
 	}
 
@@ -148,28 +148,27 @@ export class Controller {
 	 * Handles changes to the Deepgram API key configuration setting.
 	 */
 	private async handleDeepgramApiKeyChange(): Promise<void> {
-		const config = vscode.workspace.getConfiguration("cline.deepgram");
-		const newApiKey = config.get<string>("apiKey");
+		const config = vscode.workspace.getConfiguration("cline.deepgram")
+		const newApiKey = config.get<string>("apiKey")
 
 		try {
 			if (newApiKey) {
-				await storeSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID, newApiKey);
-				this.deepgramService.initialize(newApiKey);
-				console.log("[Controller] Deepgram API key updated and service re-initialized.");
+				await storeSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID, newApiKey)
+				this.deepgramService.initialize(newApiKey)
+				console.log("[Controller] Deepgram API key updated and service re-initialized.")
 				// Optionally notify the user
 				// vscode.window.showInformationMessage("Deepgram API key updated.");
 			} else {
 				// Key was cleared in settings
-				await storeSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID, undefined);
-				this.deepgramService.initialize(""); // Re-initialize with empty key to disable
-				console.log("[Controller] Deepgram API key cleared.");
+				await storeSecret(this.context, DEEPGRAM_API_KEY_SECRET_ID, undefined)
+				this.deepgramService.initialize("") // Re-initialize with empty key to disable
+				console.log("[Controller] Deepgram API key cleared.")
 			}
 		} catch (error) {
-			console.error("[Controller] Error updating Deepgram API key:", error);
-			vscode.window.showErrorMessage("Failed to update Deepgram API key.");
+			console.error("[Controller] Error updating Deepgram API key:", error)
+			vscode.window.showErrorMessage("Failed to update Deepgram API key.")
 		}
 	}
-
 
 	/**
 	 * Processes messages intercepted by the InterceptionService.
@@ -194,12 +193,12 @@ export class Controller {
 		// - Logging message details.
 		// - Triggering TTS based on criteria.
 
-		console.log('[Controller] Processing intercepted message:', { type, text, partial, imageCount: images?.length });
+		console.log("[Controller] Processing intercepted message:", { type, text, partial, imageCount: images?.length })
 
 		// Store non-partial message content for retrieval
 		if (!partial && text) {
 			// Store relevant details - adjust based on what needs to be retrieved
-			this.interceptedMessages.push({ type, text, images });
+			this.interceptedMessages.push({ type, text, images })
 			// Optional: Limit the size of the stored messages if needed
 			// const MAX_INTERCEPTED = 100;
 			// if (this.interceptedMessages.length > MAX_INTERCEPTED) {
@@ -210,42 +209,48 @@ export class Controller {
 		// --- TTS Logic ---
 		// Example criteria: Speak non-partial 'text' messages from the assistant
 		// (Note: 'say' type 'text' corresponds to assistant messages in this context)
-		if (type === 'text' && !partial && text && text.trim().length > 0) {
+		if (type === "text" && !partial && text && text.trim().length > 0) {
 			if (this.deepgramService.isReady()) {
-				console.log('[Controller] Triggering Deepgram TTS for intercepted message.');
+				console.log("[Controller] Triggering Deepgram TTS for intercepted message.")
 				// Call speak but don't await or handle the stream yet (playback TBD)
-				this.deepgramService.speak(text).then(audioBuffer => { // Correct parameter name
-					if (audioBuffer) { // Check if buffer exists
-						console.log('[Controller] Deepgram TTS audio buffer received.');
-						// Convert buffer to base64 data URI
-						// Assuming MP3 output, adjust mime type if needed (e.g., audio/wav, audio/opus)
-						const audioDataUri = `data:audio/mp3;base64,${audioBuffer.toString('base64')}`; // Use correct variable
+				this.deepgramService
+					.speak(text)
+					.then((audioBuffer) => {
+						// Correct parameter name
+						if (audioBuffer) {
+							// Check if buffer exists
+							console.log("[Controller] Deepgram TTS audio buffer received.")
+							// Convert buffer to base64 data URI
+							// Assuming MP3 output, adjust mime type if needed (e.g., audio/wav, audio/opus)
+							const audioDataUri = `data:audio/mp3;base64,${audioBuffer.toString("base64")}` // Use correct variable
 
-						// Send audio data to webview for playback
-						this.postMessageToWebview({
-							type: 'playAudio',
-							audioDataUri: audioDataUri,
-						});
-
-					} else {
-						console.log('[Controller] Deepgram TTS returned no audio buffer.');
-					}
-				}).catch(error => {
-					console.error('[Controller] Error calling Deepgram speak:', error);
-					// Don't show error to user if service wasn't ready anyway
-					if (this.deepgramService.isReady()) {
-						vscode.window.showErrorMessage(`Deepgram TTS Error: ${error instanceof Error ? error.message : String(error)}`);
-					}
-				});
+							// Send audio data to webview for playback
+							this.postMessageToWebview({
+								type: "playAudio",
+								audioDataUri: audioDataUri,
+							})
+						} else {
+							console.log("[Controller] Deepgram TTS returned no audio buffer.")
+						}
+					})
+					.catch((error) => {
+						console.error("[Controller] Error calling Deepgram speak:", error)
+						// Don't show error to user if service wasn't ready anyway
+						if (this.deepgramService.isReady()) {
+							vscode.window.showErrorMessage(
+								`Deepgram TTS Error: ${error instanceof Error ? error.message : String(error)}`,
+							)
+						}
+					})
 			} else {
-				console.warn('[Controller] Deepgram TTS skipped: Service not ready (API key likely missing).');
+				console.warn("[Controller] Deepgram TTS skipped: Service not ready (API key likely missing).")
 				// Optionally inform the user once that the key is missing
 			}
 		}
 		// --- End TTS Logic ---
 
 		// Default: Allow the message to proceed unmodified
-		return true;
+		return true
 	}
 
 	/**
@@ -255,14 +260,14 @@ export class Controller {
 	 * @returns An array of intercepted message details.
 	 */
 	public getInterceptedMessages(): { type: ClineSay; text?: string; images?: string[] }[] {
-		return [...this.interceptedMessages]; // Return a copy
+		return [...this.interceptedMessages] // Return a copy
 	}
 
 	/**
 	 * Clears the stored intercepted messages.
 	 */
 	public clearInterceptedMessages(): void {
-		this.interceptedMessages = [];
+		this.interceptedMessages = []
 	}
 
 	// Auth methods
