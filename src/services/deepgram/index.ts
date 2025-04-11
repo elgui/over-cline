@@ -29,15 +29,10 @@ export class DeepgramService {
 		}
 		this.apiKey = apiKey
 		try {
-			// TODO: Resolve TS Error: Correctly instantiate DeepgramClient with API key.
-			// The constructor signature seems problematic based on TS errors.
-			// Commenting out for now to allow compilation. Requires manual fix based on SDK docs.
-			// this.deepgram = new DeepgramClient(this.apiKey);
-			console.warn(
-				"[DeepgramService] DeepgramClient instantiation commented out due to persistent TS errors. Service will not be ready.",
-			)
-			this.deepgram = null // Explicitly set to null as instantiation is commented out
-			// console.log("[DeepgramService] DeepgramClient instantiated (check logs/runtime for key issues).");
+			// Instantiate DeepgramClient using the options object
+			const options: DeepgramClientOptions = { apiKey: this.apiKey }
+			this.deepgram = new DeepgramClient(options)
+			console.log("[DeepgramService] DeepgramClient instantiated successfully.")
 		} catch (error) {
 			console.error("[DeepgramService] Error during attempted DeepgramClient initialization:", error)
 			vscode.window.showErrorMessage(

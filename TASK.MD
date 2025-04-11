@@ -25,7 +25,7 @@
 
 *   [X] **Subtask 3.1:** Add `@deepgram/sdk` dependency to `package.json` and run `npm install` in root and `webview-ui`.
 *   [X] **Subtask 3.2:** Create `DeepgramService` (`src/services/deepgram/index.ts`) with methods for initialization and `speak`.
-*   [ ] **Subtask 3.2.1 (BLOCKER):** Resolve `DeepgramClient` instantiation error in `DeepgramService.initialize`. The current attempt (`new DeepgramClient(apiKey)`) causes a TypeScript error. This line is commented out and needs correction based on official SDK documentation for the service to function.
+*   [X] **Subtask 3.2.1:** Resolve `DeepgramClient` instantiation error in `DeepgramService.initialize`. Corrected instantiation to use `new DeepgramClient({ apiKey: ... })`.
 *   [X] **Subtask 3.3:** Integrate `DeepgramService` into `Controller`.
 *   [X] **Subtask 3.4:** Implement Deepgram API key configuration (`package.json`) and retrieval/update handling in `Controller` using VSCode secrets.
 *   [X] **Subtask 3.5:** Implement TTS Logic:
