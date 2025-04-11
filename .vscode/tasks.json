@@ -5,7 +5,7 @@
 	"tasks": [
 		{
 			"label": "watch",
-			"dependsOn": ["npm: build:webview", "npm: dev:webview", "npm: watch:tsc", "npm: watch:esbuild"],
+			"dependsOn": ["npm: dev:webview", "npm: watch:tsc", "npm: watch:esbuild"],
 			"presentation": {
 				"reveal": "never"
 			},
@@ -97,7 +97,27 @@
 			"type": "npm",
 			"script": "watch:esbuild",
 			"group": "build",
-			"problemMatcher": "$esbuild-watch",
+			"problemMatcher": {
+				"owner": "esbuild",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					// Example: > path/to/file.js:12:34: error: Some error message
+					// Example:   path/to/file.js:12:34: warning: Some warning message
+					"regexp": "^\\s*(?:> )?([^\\s].*):(\\d+):(\\d+):\\s+(error|warning|info):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				},
+				"background": {
+					"activeOnStart": true,
+					// Example: [watch] build started
+					"beginsPattern": "^\\s*\\[watch\\] build started",
+					// Example: [watch] build finished
+					"endsPattern": "^\\s*\\[watch\\] build finished"
+				}
+			},
 			"isBackground": true,
 			"label": "npm: watch:esbuild",
 			"presentation": {
@@ -115,7 +135,27 @@
 			"type": "npm",
 			"script": "watch:esbuild:test",
 			"group": "build",
-			"problemMatcher": "$esbuild-watch",
+			"problemMatcher": {
+				"owner": "esbuild",
+				"fileLocation": ["relative", "${workspaceFolder}"],
+				"pattern": {
+					// Example: > path/to/file.js:12:34: error: Some error message
+					// Example:   path/to/file.js:12:34: warning: Some warning message
+					"regexp": "^\\s*(?:> )?([^\\s].*):(\\d+):(\\d+):\\s+(error|warning|info):\\s+(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"message": 5
+				},
+				"background": {
+					"activeOnStart": true,
+					// Example: [watch] build started
+					"beginsPattern": "^\\s*\\[watch\\] build started",
+					// Example: [watch] build finished
+					"endsPattern": "^\\s*\\[watch\\] build finished"
+				}
+			},
 			"isBackground": true,
 			"label": "npm: watch:esbuild:test",
 			"presentation": {

@@ -1,22 +1,22 @@
 {
 	"name": "claude-dev",
-	"displayName": "Cline",
-	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way.",
+	"displayName": "Over-Cline",
+	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way. Fork of Cline.",
 	"version": "3.11.0",
 	"icon": "assets/icons/icon.png",
 	"engines": {
 		"vscode": "^1.84.0"
 	},
 	"author": {
-		"name": "Cline Bot Inc."
+		"name": "elgui"
 	},
 	"license": "Apache-2.0",
-	"publisher": "saoudrizwan",
+	"publisher": "elgui",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/cline/cline"
+		"url": "https://github.com/elgui/over-cline"
 	},
-	"homepage": "https://cline.bot",
+	"homepage": "https://github.com/elgui/over-cline",
 	"categories": [
 		"AI",
 		"Chat",
@@ -26,6 +26,7 @@
 		"Testing"
 	],
 	"keywords": [
+		"over-cline",
 		"cline",
 		"claude",
 		"dev",
@@ -46,7 +47,7 @@
 			"activitybar": [
 				{
 					"id": "claude-dev-ActivityBar",
-					"title": "Cline",
+					"title": "Over-Cline",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
@@ -94,28 +95,28 @@
 			{
 				"command": "cline.openInNewTab",
 				"title": "Open In New Tab",
-				"category": "Cline"
+				"category": "Over-Cline"
 			},
 			{
 				"command": "cline.dev.createTestTasks",
 				"title": "Create Test Tasks",
-				"category": "Cline",
+				"category": "Over-Cline",
 				"when": "cline.isDevMode"
 			},
 			{
 				"command": "cline.addToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"title": "Add to Over-Cline",
+				"category": "Over-Cline"
 			},
 			{
 				"command": "cline.addTerminalOutputToChat",
-				"title": "Add to Cline",
-				"category": "Cline"
+				"title": "Add to Over-Cline",
+				"category": "Over-Cline"
 			},
 			{
 				"command": "cline.fixWithCline",
-				"title": "Fix with Cline",
-				"category": "Cline"
+				"title": "Fix with Over-Cline",
+				"category": "Over-Cline"
 			}
 		],
 		"keybindings": [
@@ -208,7 +209,7 @@
 			]
 		},
 		"configuration": {
-			"title": "Cline",
+			"title": "Over-Cline",
 			"properties": {
 				"cline.vsCodeLmModelSelector": {
 					"type": "object",
@@ -287,7 +288,7 @@
 						"Turkish - Türkçe"
 					],
 					"default": "English",
-					"description": "The language that Cline should use for communication."
+					"description": "The language that Over-Cline should use for communication."
 				},
 				"cline.mcpMarketplace.enabled": {
 					"type": "boolean",

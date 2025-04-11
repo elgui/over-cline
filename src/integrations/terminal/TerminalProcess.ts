@@ -111,7 +111,7 @@ export class TerminalProcess extends EventEmitter<TerminalProcessEvents> {
 				}
 
 				// FIXME: right now it seems that data chunks returned to us from the shell integration stream contains random commas, which from what I can tell is not the expected behavior. There has to be a better solution here than just removing all commas.
-				data = data.replace(/,/g, "")
+				// data = data.replace(/,/g, "") // Commented out for debugging xterm error
 
 				// 2. Set isHot depending on the command
 				// Set to hot to stall API requests until terminal is cool again
@@ -199,7 +199,8 @@ export class TerminalProcess extends EventEmitter<TerminalProcessEvents> {
 
 	private emitRemainingBufferIfListening() {
 		if (this.buffer && this.isListening) {
-			const remainingBuffer = this.removeLastLineArtifacts(this.buffer)
+			// const remainingBuffer = this.removeLastLineArtifacts(this.buffer) // Commented out for debugging xterm error
+			const remainingBuffer = this.buffer.trimEnd() // Use simple trim instead
 			if (remainingBuffer) {
 				this.emit("line", remainingBuffer)
 			}
@@ -218,7 +219,8 @@ export class TerminalProcess extends EventEmitter<TerminalProcessEvents> {
 	getUnretrievedOutput(): string {
 		const unretrieved = this.fullOutput.slice(this.lastRetrievedIndex)
 		this.lastRetrievedIndex = this.fullOutput.length
-		return this.removeLastLineArtifacts(unretrieved)
+		// return this.removeLastLineArtifacts(unretrieved) // Commented out for debugging xterm error
+		return unretrieved.trimEnd() // Use simple trim instead
 	}
 
 	// some processing to remove artifacts like '%' at the end of the buffer (it seems that since vsode uses % at the beginning of newlines in terminal, it makes its way into the stream)

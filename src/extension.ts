@@ -417,17 +417,17 @@ export function deactivate() {
 	Logger.log("Cline extension deactivated")
 }
 
-// Set up development mode file watcher
-if (IS_DEV && IS_DEV !== "false") {
-	assert(DEV_WORKSPACE_FOLDER, "DEV_WORKSPACE_FOLDER must be set in development")
-	const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(DEV_WORKSPACE_FOLDER, "src/**/*"))
+// // Set up development mode file watcher
+// if (IS_DEV && IS_DEV !== "false") {
+// 	assert(DEV_WORKSPACE_FOLDER, "DEV_WORKSPACE_FOLDER must be set in development")
+// 	const watcher = vscode.workspace.createFileSystemWatcher(new vscode.RelativePattern(DEV_WORKSPACE_FOLDER, "src/**/*"))
 
-	watcher.onDidChange(({ scheme, path }) => {
-		console.info(`${scheme} ${path} changed. Reloading VSCode...`)
+// 	watcher.onDidChange(({ scheme, path }) => {
+// 		console.info(`${scheme} ${path} changed. Reloading VSCode...`)
 
-		vscode.commands.executeCommand("workbench.action.reloadWindow")
-	})
-}
+// 		vscode.commands.executeCommand("workbench.action.reloadWindow")
+// 	})
+// }
 
 // Set up test server if in test mode
 if (IS_TEST && IS_TEST === "true") {

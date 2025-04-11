@@ -381,58 +381,69 @@ export class Controller {
 				await this.postStateToWebview()
 				break
 			case "webviewDidLaunch":
-				this.postStateToWebview()
-				this.workspaceTracker?.populateFilePaths() // don't await
-				getTheme().then((theme) =>
-					this.postMessageToWebview({
-						type: "theme",
-						text: JSON.stringify(theme),
-					}),
-				)
-				// post last cached models in case the call to endpoint fails
-				this.readOpenRouterModels().then((openRouterModels) => {
-					if (openRouterModels) {
-						this.postMessageToWebview({
-							type: "openRouterModels",
-							openRouterModels,
-						})
-					}
-				})
-				// gui relies on model info to be up-to-date to provide the most accurate pricing, so we need to fetch the latest details on launch.
-				// we do this for all users since many users switch between api providers and if they were to switch back to openrouter it would be showing outdated model info if we hadn't retrieved the latest at this point
-				// (see normalizeApiConfiguration > openrouter)
-				// Prefetch marketplace and OpenRouter models
+				try {
+					await this.postStateToWebview() // Send initial state
 
-				getGlobalState(this.context, "mcpMarketplaceCatalog").then((mcpMarketplaceCatalog) => {
-					if (mcpMarketplaceCatalog) {
+					// Continue with other setup tasks only if state posting succeeded
+					this.workspaceTracker?.populateFilePaths() // don't await
+					getTheme().then((theme) =>
 						this.postMessageToWebview({
-							type: "mcpMarketplaceCatalog",
-							mcpMarketplaceCatalog: mcpMarketplaceCatalog as McpMarketplaceCatalog,
-						})
-					}
-				})
-				this.silentlyRefreshMcpMarketplace()
-				this.refreshOpenRouterModels().then(async (openRouterModels) => {
-					if (openRouterModels) {
-						// update model info in state (this needs to be done here since we don't want to update state while settings is open, and we may refresh models there)
-						const { apiConfiguration } = await getAllExtensionState(this.context)
-						if (apiConfiguration.openRouterModelId) {
-							await updateGlobalState(
-								this.context,
-								"openRouterModelInfo",
-								openRouterModels[apiConfiguration.openRouterModelId],
-							)
-							await this.postStateToWebview()
+							type: "theme",
+							text: JSON.stringify(theme),
+						}),
+					)
+					// post last cached models in case the call to endpoint fails
+					this.readOpenRouterModels().then((openRouterModels) => {
+						if (openRouterModels) {
+							this.postMessageToWebview({
+								type: "openRouterModels",
+								openRouterModels,
+							})
 						}
-					}
-				})
+					})
+					// gui relies on model info to be up-to-date to provide the most accurate pricing, so we need to fetch the latest details on launch.
+					// we do this for all users since many users switch between api providers and if they were to switch back to openrouter it would be showing outdated model info if we hadn't retrieved the latest at this point
+					// (see normalizeApiConfiguration > openrouter)
+					// Prefetch marketplace and OpenRouter models
 
-				// If user already opted in to telemetry, enable telemetry service
-				this.getStateToPostToWebview().then((state) => {
-					const { telemetrySetting } = state
-					const isOptedIn = telemetrySetting === "enabled"
-					telemetryService.updateTelemetryState(isOptedIn)
-				})
+					getGlobalState(this.context, "mcpMarketplaceCatalog").then((mcpMarketplaceCatalog) => {
+						if (mcpMarketplaceCatalog) {
+							this.postMessageToWebview({
+								type: "mcpMarketplaceCatalog",
+								mcpMarketplaceCatalog: mcpMarketplaceCatalog as McpMarketplaceCatalog,
+							})
+						}
+					})
+					this.silentlyRefreshMcpMarketplace()
+					this.refreshOpenRouterModels().then(async (openRouterModels) => {
+						if (openRouterModels) {
+							// update model info in state (this needs to be done here since we don't want to update state while settings is open, and we may refresh models there)
+							const { apiConfiguration } = await getAllExtensionState(this.context)
+							if (apiConfiguration.openRouterModelId) {
+								await updateGlobalState(
+									this.context,
+									"openRouterModelInfo",
+									openRouterModels[apiConfiguration.openRouterModelId],
+								)
+								await this.postStateToWebview()
+							}
+						}
+					})
+
+					// If user already opted in to telemetry, enable telemetry service
+					this.getStateToPostToWebview().then((state) => {
+						const { telemetrySetting } = state
+						const isOptedIn = telemetrySetting === "enabled"
+						telemetryService.updateTelemetryState(isOptedIn)
+					})
+				} catch (error) {
+					console.error("[Controller] Error during webviewDidLaunch handling:", error)
+					vscode.window.showErrorMessage(
+						`Cline Error: Failed to initialize webview. Check VS Code Developer Tools console (Help > Toggle Developer Tools) for details. Error: ${error instanceof Error ? error.message : String(error)}`,
+					)
+					// Optionally, send an error message to the webview to display something
+					// await this.postMessageToWebview({ type: "error", text: "Failed to load initial state." });
+				}
 				break
 			case "newTask":
 				// Code that should run in response to the hello message command

@@ -1,17 +1,39 @@
-# Getting Started with Cline: Installation and Voice Interaction
+# Getting Started with Cline (Guillaume Berthet Fork): Installation and Voice Interaction
 
-This guide covers installing the Cline VSCode extension and setting up its experimental voice interaction features.
+**Note:** This documentation refers to the fork of the original Cline extension maintained by Guillaume Berthet.
 
-## Installation
+This guide covers installing this specific fork of the Cline VSCode extension and setting up its experimental voice interaction features.
 
-1.  **Open VSCode:** Launch your Visual Studio Code editor.
-2.  **Go to Extensions:** Navigate to the Extensions view by clicking the Extensions icon in the Activity Bar on the side of the window or by pressing `Ctrl+Shift+X` (`Cmd+Shift+X` on macOS).
-3.  **Search for Cline:** In the search bar, type "Cline".
-4.  **Install:** Find the extension published by "Saoud Rizwan" (or "Cline Bot Inc.") and click the "Install" button.
-    *   Alternatively, you can install it directly from the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev).
-5.  **Reload (if prompted):** VSCode might ask you to reload the window to activate the extension.
+## Installation (Fork Version)
 
-Once installed, you should see the Cline icon in your Activity Bar. Click it to open the Cline chat panel.
+This fork is typically installed by running it directly from the source code in a development environment.
+
+**Prerequisites:**
+
+*   [Git](https://git-scm.com/) installed.
+*   [Node.js](https://nodejs.org/) (including npm) installed. Check the `.nvmrc` file or `package.json` engines field for the recommended version.
+*   [git-lfs](https://git-lfs.com/) installed (required for cloning).
+
+**Steps:**
+
+1.  **Clone the Repository:** Open your terminal or command prompt and run:
+    ```bash
+    # Replace <repository-url> with the actual URL of Guillaume Berthet's fork
+    git clone <repository-url> 
+    cd <repository-directory> # Navigate into the cloned project folder
+    ```
+2.  **Install Dependencies:** Install the necessary packages for both the core extension and the webview UI:
+    ```bash
+    npm run install:all
+    ```
+    *   This command runs `npm install` in both the root directory and the `webview-ui` directory.
+3.  **Open in VSCode:** Open the cloned project folder in VSCode:
+    ```bash
+    code .
+    ```
+4.  **Launch the Extension:** Press `F5` or go to `Run > Start Debugging` in the VSCode menu. This will compile the extension and launch a new VSCode window ("Extension Development Host") with this fork of Cline loaded and activated.
+
+You can now use this fork of Cline within the "Extension Development Host" window. The Cline icon should appear in the Activity Bar.
 
 ## Voice Interaction (Experimental)
 
