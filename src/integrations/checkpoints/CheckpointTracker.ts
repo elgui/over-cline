@@ -9,7 +9,7 @@ import { getShadowGitPath, getWorkingDirectory, hashWorkingDir } from "./Checkpo
 /**
  * CheckpointTracker Module
  *
- * Core implementation of Cline's Checkpoints system that provides version control
+ * Core implementation of Over-Cline's Checkpoints system that provides version control
  * capabilities without interfering with the user's main Git repository. Key features:
  *
  * Shadow Git Repository:
@@ -99,7 +99,7 @@ class CheckpointTracker {
 			const startTime = performance.now()
 
 			// Check if checkpoints are disabled in VS Code settings
-			const enableCheckpoints = vscode.workspace.getConfiguration("cline").get<boolean>("enableCheckpoints") ?? true
+			const enableCheckpoints = vscode.workspace.getConfiguration("over-cline").get<boolean>("enableCheckpoints") ?? true
 			if (!enableCheckpoints) {
 				return undefined // Don't create tracker when disabled
 			}

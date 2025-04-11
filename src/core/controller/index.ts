@@ -95,7 +95,7 @@ export class Controller {
 		// Listen for configuration changes to update Deepgram API key
 		this.disposables.push(
 			vscode.workspace.onDidChangeConfiguration(async (e) => {
-				if (e.affectsConfiguration("cline.deepgram.apiKey")) {
+				if (e.affectsConfiguration("over-cline.deepgram.apiKey")) {
 					await this.handleDeepgramApiKeyChange()
 				}
 			}),
@@ -153,7 +153,7 @@ export class Controller {
 	 * Handles changes to the Deepgram API key configuration setting.
 	 */
 	private async handleDeepgramApiKeyChange(): Promise<void> {
-		const config = vscode.workspace.getConfiguration("cline.deepgram")
+		const config = vscode.workspace.getConfiguration("over-cline.deepgram")
 		const newApiKey = config.get<string>("apiKey")
 
 		try {
@@ -265,7 +265,7 @@ export class Controller {
 	 * @returns boolean
 	 */
 	private isTtsEnabled(): boolean {
-		const ttsConfig = vscode.workspace.getConfiguration("cline.tts")
+		const ttsConfig = vscode.workspace.getConfiguration("over-cline.tts")
 		const isEnabled = ttsConfig.get<boolean>("enabled", true) // Default to true if setting doesn't exist
 		return isEnabled && this.deepgramService.isReady()
 	}
@@ -752,7 +752,7 @@ export class Controller {
 				const uriScheme = vscode.env.uriScheme
 
 				const authUrl = vscode.Uri.parse(
-					`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://saoudrizwan.claude-dev/auth`)}`,
+					`https://app.cline.bot/auth?state=${encodeURIComponent(nonce)}&callback_url=${encodeURIComponent(`${uriScheme || "vscode"}://elgui.over-cline/auth`)}`,
 				)
 				vscode.env.openExternal(authUrl)
 				break
@@ -794,7 +794,7 @@ export class Controller {
 
 					// 2. Enable MCP settings if disabled
 					// Enable MCP mode if disabled
-					const mcpConfig = vscode.workspace.getConfiguration("cline.mcp")
+					const mcpConfig = vscode.workspace.getConfiguration("over-cline.mcp")
 					if (mcpConfig.get<string>("mode") !== "full") {
 						await mcpConfig.update("mode", "full", true)
 					}
@@ -922,7 +922,7 @@ export class Controller {
 				const settingsFilter = message.text || ""
 				await vscode.commands.executeCommand(
 					"workbench.action.openSettings",
-					`@ext:saoudrizwan.claude-dev ${settingsFilter}`.trim(), // trim whitespace if no settings filter
+					`@ext:elgui.over-cline ${settingsFilter}`.trim(), // trim whitespace if no settings filter
 				)
 				break
 			}
@@ -1085,7 +1085,7 @@ export class Controller {
 				break
 			}
 			case "startAudioRecording": {
-				const voiceInputConfig = vscode.workspace.getConfiguration("cline.voiceInput")
+				const voiceInputConfig = vscode.workspace.getConfiguration("over-cline.voiceInput")
 				if (voiceInputConfig.get<boolean>("enabled", false)) {
 					this.startAudioRecording()
 				} else {
@@ -1096,7 +1096,7 @@ export class Controller {
 				break
 			}
 			case "stopAudioRecording": {
-				const voiceInputConfig = vscode.workspace.getConfiguration("cline.voiceInput")
+				const voiceInputConfig = vscode.workspace.getConfiguration("over-cline.voiceInput")
 				// Allow stopping even if disabled, in case it was enabled previously and then disabled during recording
 				// if (voiceInputConfig.get<boolean>('enabled', false)) {
 				this.stopAudioRecording()
@@ -1862,7 +1862,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	// 'Add to Cline' context menu in editor and code action
 	async addSelectedCodeToChat(code: string, filePath: string, languageId: string, diagnostics?: vscode.Diagnostic[]) {
 		// Ensure the sidebar view is visible
-		await vscode.commands.executeCommand("claude-dev.SidebarProvider.focus")
+		await vscode.commands.executeCommand("over-cline.SidebarProvider.focus")
 		await setTimeoutPromise(100)
 
 		// Post message to webview with the selected code
@@ -1885,7 +1885,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	// 'Add to Cline' context menu in Terminal
 	async addSelectedTerminalOutputToChat(output: string, terminalName: string) {
 		// Ensure the sidebar view is visible
-		await vscode.commands.executeCommand("claude-dev.SidebarProvider.focus")
+		await vscode.commands.executeCommand("over-cline.SidebarProvider.focus")
 		await setTimeoutPromise(100)
 
 		// Post message to webview with the selected terminal output
@@ -1906,7 +1906,7 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 	// 'Fix with Cline' in code actions
 	async fixWithCline(code: string, filePath: string, languageId: string, diagnostics: vscode.Diagnostic[]) {
 		// Ensure the sidebar view is visible
-		await vscode.commands.executeCommand("claude-dev.SidebarProvider.focus")
+		await vscode.commands.executeCommand("over-cline.SidebarProvider.focus")
 		await setTimeoutPromise(100)
 
 		const fileMention = this.getFileMentionFromPath(filePath)

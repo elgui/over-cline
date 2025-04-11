@@ -1,5 +1,5 @@
 {
-	"name": "claude-dev",
+	"name": "over-cline",
 	"displayName": "Over-Cline",
 	"description": "Autonomous coding agent right in your IDE, capable of creating/editing files, running commands, using the browser, and more with your permission every step of the way. Fork of Cline.",
 	"version": "3.11.0",
@@ -46,82 +46,82 @@
 		"viewsContainers": {
 			"activitybar": [
 				{
-					"id": "claude-dev-ActivityBar",
+					"id": "over-cline-ActivityBar",
 					"title": "Over-Cline",
 					"icon": "assets/icons/icon.svg"
 				}
 			]
 		},
 		"views": {
-			"claude-dev-ActivityBar": [
+			"over-cline-ActivityBar": [
 				{
 					"type": "webview",
-					"id": "claude-dev.SidebarProvider",
+					"id": "over-cline.SidebarProvider",
 					"name": ""
 				}
 			]
 		},
 		"commands": [
 			{
-				"command": "cline.plusButtonClicked",
+				"command": "over-cline.plusButtonClicked",
 				"title": "New Task",
 				"icon": "$(add)"
 			},
 			{
-				"command": "cline.mcpButtonClicked",
+				"command": "over-cline.mcpButtonClicked",
 				"title": "MCP Servers",
 				"icon": "$(server)"
 			},
 			{
-				"command": "cline.historyButtonClicked",
+				"command": "over-cline.historyButtonClicked",
 				"title": "History",
 				"icon": "$(history)"
 			},
 			{
-				"command": "cline.popoutButtonClicked",
+				"command": "over-cline.popoutButtonClicked",
 				"title": "Open in Editor",
 				"icon": "$(link-external)"
 			},
 			{
-				"command": "cline.accountButtonClicked",
+				"command": "over-cline.accountButtonClicked",
 				"title": "Account",
 				"icon": "$(account)"
 			},
 			{
-				"command": "cline.settingsButtonClicked",
+				"command": "over-cline.settingsButtonClicked",
 				"title": "Settings",
 				"icon": "$(settings-gear)"
 			},
 			{
-				"command": "cline.openInNewTab",
+				"command": "over-cline.openInNewTab",
 				"title": "Open In New Tab",
 				"category": "Over-Cline"
 			},
 			{
-				"command": "cline.dev.createTestTasks",
+				"command": "over-cline.dev.createTestTasks",
 				"title": "Create Test Tasks",
 				"category": "Over-Cline",
-				"when": "cline.isDevMode"
+				"when": "over-cline.isDevMode"
 			},
 			{
-				"command": "cline.addToChat",
+				"command": "over-cline.addToChat",
 				"title": "Add to Over-Cline",
 				"category": "Over-Cline"
 			},
 			{
-				"command": "cline.addTerminalOutputToChat",
+				"command": "over-cline.addTerminalOutputToChat",
 				"title": "Add to Over-Cline",
 				"category": "Over-Cline"
 			},
 			{
-				"command": "cline.fixWithCline",
+				"command": "over-cline.fixWithOverCline",
 				"title": "Fix with Over-Cline",
 				"category": "Over-Cline"
 			}
 		],
 		"keybindings": [
 			{
-				"command": "cline.addToChat",
+				"command": "over-cline.addToChat",
 				"key": "cmd+'",
 				"mac": "cmd+'",
 				"win": "ctrl+'",
@@ -132,78 +132,78 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "over-cline.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == over-cline.SidebarProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "over-cline.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == over-cline.SidebarProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "over-cline.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == over-cline.SidebarProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "over-cline.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == over-cline.SidebarProvider"
 				},
 				{
-					"command": "cline.accountButtonClicked",
+					"command": "over-cline.accountButtonClicked",
 					"group": "navigation@5",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == over-cline.SidebarProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "over-cline.settingsButtonClicked",
 					"group": "navigation@6",
-					"when": "view == claude-dev.SidebarProvider"
+					"when": "view == over-cline.SidebarProvider"
 				}
 			],
 			"editor/title": [
 				{
-					"command": "cline.plusButtonClicked",
+					"command": "over-cline.plusButtonClicked",
 					"group": "navigation@1",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == over-cline.TabPanelProvider"
 				},
 				{
-					"command": "cline.mcpButtonClicked",
+					"command": "over-cline.mcpButtonClicked",
 					"group": "navigation@2",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == over-cline.TabPanelProvider"
 				},
 				{
-					"command": "cline.historyButtonClicked",
+					"command": "over-cline.historyButtonClicked",
 					"group": "navigation@3",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == over-cline.TabPanelProvider"
 				},
 				{
-					"command": "cline.popoutButtonClicked",
+					"command": "over-cline.popoutButtonClicked",
 					"group": "navigation@4",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == over-cline.TabPanelProvider"
 				},
 				{
-					"command": "cline.accountButtonClicked",
+					"command": "over-cline.accountButtonClicked",
 					"group": "navigation@5",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == over-cline.TabPanelProvider"
 				},
 				{
-					"command": "cline.settingsButtonClicked",
+					"command": "over-cline.settingsButtonClicked",
 					"group": "navigation@6",
-					"when": "activeWebviewPanelId == claude-dev.TabPanelProvider"
+					"when": "activeWebviewPanelId == over-cline.TabPanelProvider"
 				}
 			],
 			"editor/context": [
 				{
-					"command": "cline.addToChat",
+					"command": "over-cline.addToChat",
 					"group": "navigation",
 					"when": "editorHasSelection"
 				}
 			],
 			"terminal/context": [
 				{
-					"command": "cline.addTerminalOutputToChat",
+					"command": "over-cline.addTerminalOutputToChat",
 					"group": "navigation"
 				}
 			]
@@ -211,7 +211,7 @@
 		"configuration": {
 			"title": "Over-Cline",
 			"properties": {
-				"cline.vsCodeLmModelSelector": {
+				"over-cline.vsCodeLmModelSelector": {
 					"type": "object",
 					"properties": {
 						"vendor": {
@@ -225,7 +225,7 @@
 					},
 					"description": "Settings for VSCode Language Model API"
 				},
-				"cline.mcp.mode": {
+				"over-cline.mcp.mode": {
 					"type": "string",
 					"enum": [
 						"full",
@@ -240,17 +240,17 @@
 					"default": "full",
 					"description": "Controls MCP inclusion in prompts, reduces token usage if you only need access to certain functionality."
 				},
-				"cline.enableCheckpoints": {
+				"over-cline.enableCheckpoints": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enables extension to save checkpoints of workspace throughout the task. Uses git under the hood which may not work well with large workspaces."
 				},
-				"cline.disableBrowserTool": {
+				"over-cline.disableBrowserTool": {
 					"type": "boolean",
 					"default": false,
 					"description": "Disables extension from spawning browser session."
 				},
-				"cline.modelSettings.o3Mini.reasoningEffort": {
+				"over-cline.modelSettings.o3Mini.reasoningEffort": {
 					"type": "string",
 					"enum": [
 						"low",
@@ -260,12 +260,12 @@
 					"default": "medium",
 					"description": "Controls the reasoning effort when using the o3-mini model. Higher values may result in more thorough but slower responses."
 				},
-				"cline.chromeExecutablePath": {
+				"over-cline.chromeExecutablePath": {
 					"type": "string",
 					"default": null,
 					"description": "Path to Chrome executable for browser use functionality. If not set, the extension will attempt to find or download it automatically."
 				},
-				"cline.preferredLanguage": {
+				"over-cline.preferredLanguage": {
 					"type": "string",
 					"enum": [
 						"English",
@@ -290,24 +290,24 @@
 					"default": "English",
 					"description": "The language that Over-Cline should use for communication."
 				},
-				"cline.mcpMarketplace.enabled": {
+				"over-cline.mcpMarketplace.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Controls whether the MCP Marketplace is enabled."
 				},
-				"cline.deepgram.apiKey": {
+				"over-cline.deepgram.apiKey": {
 					"type": "string",
 					"default": null,
 					"description": "Your Deepgram API Key for Text-to-Speech features. Stored securely.",
 					"scope": "machine"
 				},
-				"cline.tts.enabled": {
+				"over-cline.tts.enabled": {
 					"type": "boolean",
 					"default": true,
 					"description": "Enable Text-to-Speech (TTS) for assistant messages. Requires Deepgram API key.",
 					"scope": "window"
 				},
-				"cline.voiceInput.enabled": {
+				"over-cline.voiceInput.enabled": {
 					"type": "boolean",
 					"default": false,
 					"description": "Enable the microphone button for voice input (requires external Speech-to-Text processing).",

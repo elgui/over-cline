@@ -69,3 +69,14 @@
     *   Update `README.md` and potentially `PLANNING.MD` with details about voice interaction setup and usage.
     *   Add tests for any new services or significant logic changes.
     *   Perform manual testing across different platforms (if possible) for microphone capture and TTS playback.
+
+## Task 6: Rename Extension Identifiers for Cohabitation (Complete)
+
+*   [X] **Subtask 6.1:** Update `package.json` identifiers (`name`, views, commands, configuration) from `claude-dev`/`cline.` to `over-cline`/`over-cline.`.
+*   [X] **Subtask 6.2:** Update corresponding identifiers in TypeScript code (`src/**/*.ts`) and React code (`webview-ui/**/*.tsx`).
+*   [X] **Subtask 6.3:** Update Output Channel name and Webview Panel title in `src/extension.ts`.
+*   [X] **Subtask 6.4:** Update other relevant names like Git commit user and comments.
+
+## Discovered During Work
+
+*   **TODO:** Perform a manual search-and-replace across the codebase for remaining visual references to "Cline" (e.g., UI text, log messages referring to the extension name) and change them to "Over-Cline" as needed. Focus on user-facing elements.

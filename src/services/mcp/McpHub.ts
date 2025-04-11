@@ -95,7 +95,7 @@ export class McpHub {
 	}
 
 	getMode(): McpMode {
-		return vscode.workspace.getConfiguration("cline.mcp").get<McpMode>("mode", "full")
+		return vscode.workspace.getConfiguration("over-cline.mcp").get<McpMode>("mode", "full")
 	}
 
 	async getMcpServersPath(): Promise<string> {

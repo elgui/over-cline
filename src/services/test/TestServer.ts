@@ -52,7 +52,7 @@ export function createTestServer(): http.Server {
 				const visibleWebview = WebviewProvider.getVisibleInstance()
 				if (!visibleWebview || !visibleWebview.controller) {
 					res.writeHead(500)
-					res.end(JSON.stringify({ error: "No active Cline instance found" }))
+					res.end(JSON.stringify({ error: "No active Over-Cline instance found" }))
 					return
 				}
 
