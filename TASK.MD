@@ -40,3 +40,32 @@
 *   [ ] **Subtask 4.2:** Add basic tests (if testing infrastructure exists) for the new `Controller` methods, API endpoint, and `DeepgramService`.
 *   [ ] **Subtask 4.3:** Manually test TTS triggering and audio playback.
 *   [ ] **Subtask 4.4:** Manually test input injection via the exposed API endpoint (simulating the external STT source).
+
+## Task 5: Implement Cross-Platform Audio I/O for Voice Interaction
+
+*Goal: Enable capturing microphone input and playing TTS audio reliably within the VS Code extension environment.*
+
+*   [ ] **Subtask 5.1:** Research & Select Audio Handling Strategy:
+    *   Evaluate the current Web Audio API approach in `webview-ui/src/context/ExtensionStateContext.tsx` for TTS playback robustness.
+    *   Investigate Node.js libraries (e.g., `node-portaudio`, `naudiodon`) or system commands (SoX, ffmpeg, platform-specific tools) for microphone capture directly from the extension host (`src`).
+    *   Decide on the best approach for both playback and capture, considering cross-platform compatibility (Windows, macOS, Linux) and ease of integration.
+*   [ ] **Subtask 5.2:** Implement Microphone Input Capture:
+    *   Based on the chosen strategy (5.1), implement the logic to capture audio from the user's default microphone. This might involve adding a new service in `src/services/`.
+    *   Define how the captured audio data will be handled (e.g., streamed, buffered). *Note: The actual sending to Deepgram STT is assumed to be external, but the extension needs to capture the audio first.*
+*   [ ] **Subtask 5.3:** Implement UI Controls for Voice Input:
+    *   Add UI elements (e.g., a microphone button) to the webview (`webview-ui`) to allow users to start and stop audio recording.
+    *   Connect these UI controls to trigger the microphone capture mechanism (Subtask 5.2).
+    *   Determine how the *result* of the external STT (the transcribed text) will be fed back into Cline (likely using the existing `injectUserInput` API from Task 2).
+*   [ ] **Subtask 5.4:** Implement/Refine Audio Playback:
+    *   If the Web Audio API approach is deemed sufficient, ensure it's robust and handles potential errors gracefully.
+    *   If a native Node.js approach is chosen (from 5.1), implement the playback logic in the extension host, likely involving sending audio data/events to the webview or playing directly.
+*   [ ] **Subtask 5.5:** Refine TTS Triggering Logic:
+    *   Review and potentially adjust the criteria in `Controller.processInterceptedMessage` (`src/core/controller/index.ts`) for when TTS should be triggered. Consider adding settings to control this behavior (e.g., only speak assistant messages, optionally speak tool results).
+*   [ ] **Subtask 5.6:** Add Configuration Options:
+    *   Introduce settings in `package.json` (contributes.configuration) and handle them in the `Controller` for:
+        *   Enabling/disabling voice features (TTS & STT initiation).
+        *   (Optional) Selecting input/output audio devices if the chosen library supports it.
+*   [ ] **Subtask 5.7:** Documentation & Testing:
+    *   Update `README.md` and potentially `PLANNING.MD` with details about voice interaction setup and usage.
+    *   Add tests for any new services or significant logic changes.
+    *   Perform manual testing across different platforms (if possible) for microphone capture and TTS playback.

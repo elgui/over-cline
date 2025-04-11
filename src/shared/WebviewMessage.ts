@@ -78,6 +78,8 @@ export interface WebviewMessage {
 		| "scrollToSettings"
 		| "getRelativePaths" // Handles single and multiple URI resolution
 		| "searchFiles"
+		| "startAudioRecording" // Request to start recording audio
+		| "stopAudioRecording" // Request to stop recording audio
 	// | "relaunchChromeDebugMode"
 	text?: string
 	uris?: string[] // Used for getRelativePaths

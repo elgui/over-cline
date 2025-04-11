@@ -26,6 +26,7 @@ import { MAX_IMAGES_PER_MESSAGE } from "@/components/chat/ChatView"
 import ContextMenu from "@/components/chat/ContextMenu"
 import { ChatSettings } from "@shared/ChatSettings"
 import ServersToggleModal from "./ServersToggleModal"
+import { useAudioRecording } from "@/hooks/useAudioRecording" // Use path alias
 
 interface ChatTextAreaProps {
 	inputValue: string
@@ -246,6 +247,7 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 		const [fileSearchResults, setFileSearchResults] = useState<SearchResult[]>([])
 		const [searchLoading, setSearchLoading] = useState(false)
 		const [, metaKeyChar] = useMetaKeyDetection(platform)
+		const { isRecording, startRecording, stopRecording } = useAudioRecording() // Use the hook
 
 		// Add a ref to track previous menu state
 		const prevShowModelSelector = useRef(showModelSelector)
@@ -1154,7 +1156,25 @@ const ChatTextArea = forwardRef<HTMLTextAreaElement, ChatTextAreaProps>(
 								display: "flex",
 								flexDirection: "row",
 								alignItems: "center",
+								gap: "5px", // Add gap for the new button
 							}}>
+							{/* Microphone Button */}
+							<div
+								data-testid="mic-button"
+								className={`input-icon-button ${textAreaDisabled ? "disabled" : ""} codicon ${isRecording ? "codicon-stop-circle recording-active" : "codicon-mic"}`}
+								onClick={() => {
+									if (textAreaDisabled) return
+									if (isRecording) {
+										stopRecording()
+									} else {
+										startRecording()
+									}
+								}}
+								style={{
+									fontSize: 16,
+									color: isRecording ? "var(--vscode-terminalCommandDecoration-successColor)" : undefined,
+								}}></div>
+							{/* Existing Camera Button - commented out */}
 							{/* <div
 								className={`input-icon-button ${shouldDisableImages ? "disabled" : ""} codicon codicon-device-camera`}
 								onClick={() => {

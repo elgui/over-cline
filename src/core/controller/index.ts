@@ -20,6 +20,7 @@ import { ClineAccountService } from "../../services/account/ClineAccountService"
 import { McpHub } from "../../services/mcp/McpHub"
 import { InterceptionService } from "../../services/interception"
 import { DeepgramService } from "../../services/deepgram" // Added DeepgramService import
+import { AudioService } from "../../services/audio" // Added AudioService import
 import { telemetryService } from "../../services/telemetry/TelemetryService"
 import { ApiProvider, ModelInfo } from "../../shared/api"
 import { findLast } from "../../shared/array"
@@ -67,6 +68,7 @@ export class Controller {
 	accountService?: ClineAccountService
 	private interceptionService: InterceptionService
 	private deepgramService: DeepgramService // Added DeepgramService instance property
+	private audioService: AudioService // Added AudioService instance property
 	private interceptedMessages: { type: ClineSay; text?: string; images?: string[] }[] = [] // Store intercepted messages
 	private latestAnnouncementId = "april-7-2025" // update to some unique identifier when we add a new announcement
 	private webviewProviderRef: WeakRef<WebviewProvider>
@@ -87,6 +89,8 @@ export class Controller {
 		// Instantiate DeepgramService (key retrieval happens async)
 		this.deepgramService = new DeepgramService()
 		this.initializeDeepgramService() // Call async initialization
+		// Instantiate AudioService
+		this.audioService = new AudioService(this.outputChannel)
 
 		// Listen for configuration changes to update Deepgram API key
 		this.disposables.push(
@@ -123,6 +127,7 @@ export class Controller {
 		this.mcpHub?.dispose()
 		this.mcpHub = undefined
 		this.accountService = undefined
+		this.audioService?.dispose() // Dispose AudioService
 		this.outputChannel.appendLine("Disposed all disposables")
 
 		console.error("Controller disposed")
@@ -207,12 +212,12 @@ export class Controller {
 		}
 
 		// --- TTS Logic ---
-		// Example criteria: Speak non-partial 'text' messages from the assistant
+		// Example criteria: Speak non-partial 'text' messages from the assistant if TTS is enabled
 		// (Note: 'say' type 'text' corresponds to assistant messages in this context)
-		if (type === "text" && !partial && text && text.trim().length > 0) {
+		if (this.isTtsEnabled() && type === "text" && !partial && text && text.trim().length > 0) {
 			if (this.deepgramService.isReady()) {
 				console.log("[Controller] Triggering Deepgram TTS for intercepted message.")
-				// Call speak but don't await or handle the stream yet (playback TBD)
+				// Call speak but don't await (playback happens in webview)
 				this.deepgramService
 					.speak(text)
 					.then((audioBuffer) => {
@@ -251,6 +256,18 @@ export class Controller {
 
 		// Default: Allow the message to proceed unmodified
 		return true
+	}
+
+	/**
+	 * Placeholder method to check if TTS should be active.
+	 * TODO: Replace with actual setting check in Subtask 5.6.
+	 * Checks if TTS is enabled based on user settings and Deepgram readiness.
+	 * @returns boolean
+	 */
+	private isTtsEnabled(): boolean {
+		const ttsConfig = vscode.workspace.getConfiguration("cline.tts")
+		const isEnabled = ttsConfig.get<boolean>("enabled", true) // Default to true if setting doesn't exist
+		return isEnabled && this.deepgramService.isReady()
 	}
 
 	/**
@@ -1054,6 +1071,27 @@ export class Controller {
 						mentionsRequestId: message.mentionsRequestId,
 					})
 				}
+				break
+			}
+			case "startAudioRecording": {
+				const voiceInputConfig = vscode.workspace.getConfiguration("cline.voiceInput")
+				if (voiceInputConfig.get<boolean>("enabled", false)) {
+					this.startAudioRecording()
+				} else {
+					console.warn("[Controller] Received startAudioRecording message but voice input is disabled in settings.")
+					// Optionally notify the user that the feature is disabled
+					// vscode.window.showInformationMessage("Voice input is disabled. Enable it in Cline settings.");
+				}
+				break
+			}
+			case "stopAudioRecording": {
+				const voiceInputConfig = vscode.workspace.getConfiguration("cline.voiceInput")
+				// Allow stopping even if disabled, in case it was enabled previously and then disabled during recording
+				// if (voiceInputConfig.get<boolean>('enabled', false)) {
+				this.stopAudioRecording()
+				// } else {
+				// 	console.warn("[Controller] Received stopAudioRecording message but voice input is disabled in settings.");
+				// }
 				break
 			}
 			// Add more switch case statements here as more webview message commands
@@ -2205,6 +2243,26 @@ Here is the project's README to help you get started:\n\n${mcpDetails.readmeCont
 			})
 		}
 	}
+
+	// --- Audio Recording Control ---
+
+	/**
+	 * Starts audio recording using the AudioService.
+	 */
+	public startAudioRecording() {
+		this.audioService?.startRecording()
+		// TODO: Potentially notify webview about recording state change
+	}
+
+	/**
+	 * Stops audio recording using the AudioService.
+	 */
+	public stopAudioRecording() {
+		this.audioService?.stopRecording()
+		// TODO: Potentially notify webview about recording state change
+	}
+
+	// --- End Audio Recording Control ---
 
 	// dev
 

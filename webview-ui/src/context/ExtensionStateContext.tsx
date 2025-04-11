@@ -11,6 +11,26 @@ import { DEFAULT_BROWSER_SETTINGS } from "@shared/BrowserSettings"
 import { DEFAULT_CHAT_SETTINGS } from "@shared/ChatSettings"
 import { TelemetrySetting } from "@shared/TelemetrySetting"
 
+// --- Audio Context Singleton ---
+let audioContextInstance: AudioContext | null = null
+
+const getAudioContext = (): AudioContext | null => {
+	if (!audioContextInstance) {
+		try {
+			audioContextInstance = new (window.AudioContext || (window as any).webkitAudioContext)()
+		} catch (e) {
+			console.error("Web Audio API is not supported in this environment.", e)
+			return null
+		}
+	}
+	// Optional: Resume context if it was suspended (e.g., by browser policies)
+	if (audioContextInstance.state === "suspended") {
+		audioContextInstance.resume().catch((err) => console.error("Error resuming AudioContext:", err))
+	}
+	return audioContextInstance
+}
+// --- End Audio Context Singleton ---
+
 interface ExtensionStateContextType extends ExtensionState {
 	didHydrateState: boolean
 	showWelcome: boolean
@@ -146,10 +166,20 @@ export const ExtensionStateContextProvider: React.FC<{
 			}
 			case "playAudio": {
 				if (message.audioDataUri) {
+					// Use a single AudioContext instance for better resource management
+					const audioContext = getAudioContext()
+					if (!audioContext) {
+						console.error("AudioContext is not supported in this browser.")
+						break
+					}
+
 					try {
-						// Basic Web Audio API playback
-						const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
 						const base64Data = message.audioDataUri.split(",")[1]
+						if (!base64Data) {
+							console.error("Invalid audio data URI format.")
+							break
+						}
+
 						const byteCharacters = atob(base64Data)
 						const byteNumbers = new Array(byteCharacters.length)
 						for (let i = 0; i < byteCharacters.length; i++) {
@@ -158,21 +188,36 @@ export const ExtensionStateContextProvider: React.FC<{
 						const byteArray = new Uint8Array(byteNumbers)
 						const arrayBuffer = byteArray.buffer
 
+						// Decode the audio data
 						audioContext.decodeAudioData(
 							arrayBuffer,
-							(buffer) => {
+							(buffer: AudioBuffer) => {
+								// Add explicit type AudioBuffer
+								// Create a buffer source
 								const source = audioContext.createBufferSource()
 								source.buffer = buffer
+								// Connect the source to the context's destination (the speakers)
 								source.connect(audioContext.destination)
+								// Start playback immediately
 								source.start(0)
+								// Optional: Clean up context after playback finishes if needed,
+								// but reusing the context is generally better.
+								// source.onended = () => {
+								//   console.log('Audio playback finished.');
+								//   // audioContext.close(); // Close context if not reusing
+								// };
 							},
-							(err) => {
-								console.error("Error decoding audio data:", err)
+							(decodeError) => {
+								console.error("Error decoding audio data:", decodeError)
+								// Optionally inform the user via a message or UI element
 							},
 						)
 					} catch (error) {
-						console.error("Error playing audio:", error)
+						console.error("Error processing or playing audio:", error)
+						// Optionally inform the user
 					}
+				} else {
+					console.warn("playAudio message received without audioDataUri.")
 				}
 				break
 			}

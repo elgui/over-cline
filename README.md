@@ -137,6 +137,20 @@ For example, when working with a local web server, you can use 'Restore Workspac
 
 <img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
 
+### Voice Interaction (Experimental)
+
+Cline now includes experimental support for voice interaction:
+
+-   **Text-to-Speech (TTS):** Hear Cline's responses spoken aloud.
+    -   Requires a [Deepgram](https://deepgram.com/) API key. Set it in the extension settings (`cline.deepgram.apiKey`).
+    -   Enable/disable TTS using the `cline.tts.enabled` setting (default: `true`).
+-   **Voice Input Initiation:** A microphone button is available next to the chat input to start/stop audio capture.
+    -   **Important:** This feature only *captures* audio using the `naudiodon` library. Actual Speech-to-Text (STT) processing must be handled by an external application or service. The transcribed text should then be sent back to Cline using its programmatic input API.
+    -   Enable/disable the microphone button using the `cline.voiceInput.enabled` setting (default: `false`).
+    -   **Build Tools Requirement:** The `naudiodon` library requires native compilation. You might need build tools installed on your system (like Python, C++ compiler, make) for the extension to install and use this feature correctly. Consult the `naudiodon` documentation for platform-specific requirements if you encounter installation issues.
+
+<img width="2000" height="0" src="https://github.com/user-attachments/assets/ee14e6f7-20b8-4391-9091-8e8e25561929"><br>
+
 ## Troubleshooting
 
 <details>

@@ -1,4 +1,4 @@
-import { DeepgramClient, DeepgramClientOptions, SpeakSchema } from "@deepgram/sdk"
+import { DeepgramClient, SpeakSchema, createClient } from "@deepgram/sdk" // Import createClient
 import * as vscode from "vscode"
 
 /**
@@ -29,10 +29,10 @@ export class DeepgramService {
 		}
 		this.apiKey = apiKey
 		try {
-			// Instantiate DeepgramClient using the options object
-			const options: DeepgramClientOptions = { apiKey: this.apiKey }
-			this.deepgram = new DeepgramClient(options)
-			console.log("[DeepgramService] DeepgramClient instantiated successfully.")
+			// Use the createClient factory function as recommended for SDK v3
+			// Note: Ensure this.apiKey is not null/undefined before this line due to the check above.
+			this.deepgram = createClient(this.apiKey!) // Pass API key directly
+			console.log("[DeepgramService] DeepgramClient instantiated successfully using createClient.")
 		} catch (error) {
 			console.error("[DeepgramService] Error during attempted DeepgramClient initialization:", error)
 			vscode.window.showErrorMessage(
