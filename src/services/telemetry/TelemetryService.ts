@@ -85,10 +85,10 @@ class PostHogClient {
 	/** Current version of the extension */
 	private readonly version: string = extensionVersion
 
-/**
- * PostHogClient handles telemetry event tracking for the Over-Cline extension
- * Uses PostHog analytics to track user interactions and system events
- */
+	/**
+	 * PostHogClient handles telemetry event tracking for the Over-Cline extension
+	 * Uses PostHog analytics to track user interactions and system events
+	 */
 	private constructor() {
 		this.client = new PostHog("phc_qfOAGxZw2TL5O8p9KYd9ak3bPBFzfjC8fy5L6jNWY7K", {
 			host: "https://us.i.posthog.com",
